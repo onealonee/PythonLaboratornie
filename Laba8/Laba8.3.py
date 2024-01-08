@@ -1,47 +1,40 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def draw_polygon(ax, sides, length, center_x, center_y, rotation=0):
-    """Рисует правильный многоугольник."""
-    angle = 2 * np.pi / sides
-    x = [center_x + length * np.cos(i * angle + rotation) for i in range(sides + 1)]
-    y = [center_y + length * np.sin(i * angle + rotation) for i in range(sides + 1)]
+def draw_hexagon(ax, center, size):
+    """Рисует правильный шестиугольник."""
+    angles = np.linspace(0, 2 * np.pi, 7)
+    x = center[0] + size * np.cos(angles)
+    y = center[1] + size * np.sin(angles)
     ax.plot(x, y, color='black')
 
-def recursive_polygons(ax, sides, length, center_x, center_y, rotation, levels):
-    """Рекурсивно рисует последовательность правильных многоугольников."""
+def recursive_draw(ax, center, size, levels):
+    """Рекурсивно рисует последовательность вложенных шестиугольников."""
     if levels == 0:
         return
     else:
-        # Рисуем текущий многоугольник
-        draw_polygon(ax, sides, length, center_x, center_y, rotation)
+        draw_hexagon(ax, center, size)
+        next_size = size / 2
+        for i in range(6):
+            next_center = (
+                center[0] + size * np.cos(2 * np.pi / 6 * i),
+                center[1] + size * np.sin(2 * np.pi / 6 * i)
+            )
+            recursive_draw(ax, next_center, next_size, levels - 1)
 
-        # Находим координаты вершин следующего многоугольника
-        angle = 2 * np.pi / sides
-        new_x = [center_x + length * np.cos(i * angle + rotation + angle / 2) for i in range(sides)]
-        new_y = [center_y + length * np.sin(i * angle + rotation + angle / 2) for i in range(sides)]
-
-        # Рекурсивно рисуем следующий многоугольник внутри текущего
-        for i in range(sides):
-            recursive_polygons(ax, sides, length / 2, new_x[i], new_y[i], rotation + angle, levels - 1)
-
-# Пример использования
-# Настраиваем начальные параметры
-initial_sides = 6  # Начальное количество сторон (шестиугольник)
-initial_length = 100  # Длина стороны начального многоугольника
-initial_rotation = 0  # Начальный угол поворота
-
-levels = 3  # Количество уровней рекурсии
-
-# Создаем график
+# Создаем фигуру и оси
 fig, ax = plt.subplots()
 
-# Рисуем последовательность правильных многоугольников
-recursive_polygons(ax, initial_sides, initial_length, 0, 0, initial_rotation, levels)
+# Задаем начальные параметры
+initial_center = (0, 0)
+initial_size = 100
+initial_levels = 3
 
-# Настраиваем параметры графика
-ax.set_aspect('equal', adjustable='datalim')
-ax.axis('off')
+# Рисуем последовательность вложенных шестиугольников
+recursive_draw(ax, initial_center, initial_size, initial_levels)
+
+# Устанавливаем равное соотношение сторон для лучшей визуализации
+ax.set_aspect('equal', adjustable='box')
 
 # Показываем график
 plt.show()
