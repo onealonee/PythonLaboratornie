@@ -1,40 +1,58 @@
 import matplotlib.pyplot as plt
-import numpy as np
+import matplotlib.patches as patches
 
-def draw_hexagon(ax, center, size):
-    """Рисует правильный шестиугольник."""
-    angles = np.linspace(0, 2 * np.pi, 7)
-    x = center[0] + size * np.cos(angles)
-    y = center[1] + size * np.sin(angles)
-    ax.plot(x, y, color='black')
 
-def recursive_draw(ax, center, size, levels):
-    """Рекурсивно рисует последовательность вложенных шестиугольников."""
-    if levels == 0:
-        return
+def draw_polygon(vertices):
+    """
+    Отрисовка многоугольника по заданным вершинам
+    """
+    polygon = patches.Polygon(vertices, closed=True, edgecolor='black')
+    plt.gca().add_patch(polygon)
+
+
+def build_polygon_sequence(level, vertices):
+    """
+    Построение последовательности многоугольников с использованием рекурсии
+    """
+    if level == 0:
+        # Базовый случай: отрисовка первоначального многоугольника
+        draw_polygon(vertices)
     else:
-        draw_hexagon(ax, center, size)
-        next_size = size / 2
-        for i in range(6):
-            next_center = (
-                center[0] + size * np.cos(2 * np.pi / 6 * i),
-                center[1] + size * np.sin(2 * np.pi / 6 * i)
-            )
-            recursive_draw(ax, next_center, next_size, levels - 1)
+        # Построение вершин текущего многоугольника
+        new_vertices = build_new_vertices(vertices)
 
-# Создаем фигуру и оси
-fig, ax = plt.subplots()
+        # Отрисовка текущего многоугольника
+        draw_polygon(new_vertices)
 
-# Задаем начальные параметры
-initial_center = (0, 0)
-initial_size = 100
-initial_levels = 3
+        # Рекурсивный вызов для следующего уровня
+        build_polygon_sequence(level - 1, new_vertices)
 
-# Рисуем последовательность вложенных шестиугольников
-recursive_draw(ax, initial_center, initial_size, initial_levels)
 
-# Устанавливаем равное соотношение сторон для лучшей визуализации
-ax.set_aspect('equal', adjustable='box')
+def build_new_vertices(previous_vertices):
+    """
+    Построение вершин нового многоугольника на основе предыдущего
+    """
+    new_vertices = []
+    num_vertices = len(previous_vertices)
 
-# Показываем график
+    for i in range(num_vertices):
+        # Берем середину между текущей и следующей вершиной
+        x = (previous_vertices[i][0] + previous_vertices[(i + 1) % num_vertices][0]) / 2
+        y = (previous_vertices[i][1] + previous_vertices[(i + 1) % num_vertices][1]) / 2
+        new_vertices.append((x, y))
+
+    return new_vertices
+
+
+# Задаем первоначальный многоугольник (шестиугольник)
+initial_vertices = [(1, 0), (0.5, 0.87), (-0.5, 0.87), (-1, 0), (-0.5, -0.87), (0.5, -0.87)]
+
+# Задаем уровень рекурсии
+recursion_level = 4
+
+# Отрисовываем последовательность многоугольников
+build_polygon_sequence(recursion_level, initial_vertices)
+
+# Настраиваем график
+plt.axis('equal')
 plt.show()
