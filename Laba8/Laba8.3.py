@@ -48,7 +48,7 @@ def build_new_vertices(previous_vertices):
 initial_vertices = [(1, 0), (0.5, 0.87), (-0.5, 0.87), (-1, 0), (-0.5, -0.87), (0.5, -0.87)]
 
 # Задаем уровень рекурсии
-recursion_level = 4
+recursion_level = 10
 
 # Отрисовываем последовательность многоугольников
 build_polygon_sequence(recursion_level, initial_vertices)
